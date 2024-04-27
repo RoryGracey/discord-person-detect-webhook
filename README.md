@@ -4,17 +4,17 @@ Fun project to get discord notification when a person is detected on a webcam. W
 
 ### Discord Setup
 
-* Click the settings icon on the channel where you want the alerts on.
+- Click the settings icon on the channel where you want the alerts on.
 
 ![image](https://github.com/RoryGracey/discord-person-detect-webhook/assets/47629117/cdeecdbf-2bb6-4662-afcb-2bd8c6f45c73)
 
-* Click `Integrations`
+- Click `Integrations`
 
-* Click `Webooks`
+- Click `Webooks`
 
-* Click `New Webhook`
+- Click `New Webhook`
 
-* Copy Webhook url
+- Copy Webhook url
 
 Once you've got the URL create a .env file in the source directory of the `discord-person-detect-webhook` directory.
 
@@ -31,23 +31,23 @@ alert_id=1234567890
 
 ### Python Installation
 
-*Tested on Python `3.12.1`*
+_Tested on Python `3.12.1`_
 
 Create VirtualEnv
 
-```python
+```bash
 python -m venv object-detection
 source object-detection/Scripts/activate
 ```
 
 Install Requirements
 
-```python
+```bash
 python -m pip install -r requirements.txt
 ```
 
 Run script with webcam plugged in
 
-```
+```bash
 python main.py
 ```
