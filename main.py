@@ -72,6 +72,7 @@ def main():
             os.remove("images/detected_person.jpg")
             time.sleep(30)
 
+        print('frame')
         time.sleep(3)
 
         if cv2.waitKey(1) == ord('q'):
