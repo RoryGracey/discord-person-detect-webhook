@@ -2,7 +2,7 @@ import os
 import time
 
 import cv2
-import numpy as np
+import torch
 from discord_funcs import theres_somebody_at_the_door
 from dotenv import load_dotenv
 from transformers import YolosImageProcessor, YolosForObjectDetection
@@ -29,7 +29,7 @@ def main():
 
         height, width = img.shape[:2]
 
-        target_sizes = np.array([[height, width]])
+        target_sizes = torch.tensor([[height, width]])
 
         results = image_processor.post_process_object_detection(
             outputs, threshold=0.6, target_sizes=target_sizes)[0]
