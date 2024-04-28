@@ -18,6 +18,8 @@ def main():
     model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
     image_processor = YolosImageProcessor.from_pretrained('hustvl/yolos-tiny')
 
+    print('Loaded Model.')
+
     while True:
         ret, img = cap.read()
 
@@ -69,6 +71,8 @@ def main():
             theres_somebody_at_the_door(URL, os.getenv('alert_id'))
             os.remove("images/detected_person.jpg")
             time.sleep(30)
+
+        time.sleep(3)
 
         if cv2.waitKey(1) == ord('q'):
             break
