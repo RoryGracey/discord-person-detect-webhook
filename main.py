@@ -86,8 +86,6 @@ def main():
                 theres_somebody_at_the_door(URL, os.getenv('alert_id'))
                 os.remove("images/detected_person.jpg")
 
-        print('frame')
-
         if cv2.waitKey(1) == ord('q'):
             break
 
