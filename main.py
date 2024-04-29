@@ -17,63 +17,76 @@ def main():
 
     model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
     image_processor = YolosImageProcessor.from_pretrained('hustvl/yolos-tiny')
-
+    person_detected = False
     print('Loaded Model.')
+
+    time_duration = 15
+    start_time = 0
 
     while True:
         ret, img = cap.read()
 
-        inputs = image_processor(images=img, return_tensors="pt")
-        outputs = model(**inputs)
 
-        logits = outputs.logits
-        bboxes = outputs.pred_boxes
+        if person_detected:
+            if start_time == 0:
+                start_time = time.time()
+            
+            if time.time() - start_time >= time_duration:
+                start_time = 0
+                person_detected = False
+                print("Timer expired. Resuming object detection.")
 
-        height, width = img.shape[:2]
+        if not person_detected:
+            inputs = image_processor(images=img, return_tensors="pt")
+            outputs = model(**inputs)
 
-        target_sizes = torch.tensor([[height, width]])
+            logits = outputs.logits
+            bboxes = outputs.pred_boxes
 
-        results = image_processor.post_process_object_detection(
-            outputs, threshold=0.6, target_sizes=target_sizes)[0]
+            height, width = img.shape[:2]
 
-        for score, label, box in zip(results['scores'], results['labels'], results['boxes']):
+            target_sizes = torch.tensor([[height, width]])
 
-            if model.config.id2label[label.item()] != 'person':
-                continue
+            results = image_processor.post_process_object_detection(
+                outputs, threshold=0.6, target_sizes=target_sizes)[0]
 
-            box = [round(i, 2) for i in box.tolist()]
+            for score, label, box in zip(results['scores'], results['labels'], results['boxes']):
 
-            print(
-                f"Detected {
-                    model.config.id2label[label.item()]} with confidence "
-                f"{round(score.item(), 3)} at location {box}"
-            )
-            x1, y1, x2, y2 = box
-            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+                if model.config.id2label[label.item()] != 'person':
+                    continue
 
-            cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
+                person_detected = True
 
-            confidence = round(score.item(), 3) * 100
+                box = [round(i, 2) for i in box.tolist()]
 
-            print('Confidence --->', confidence)
-            print('Class name --->', model.config.id2label[label.item()])
+                print(
+                    f"Detected {model.config.id2label[label.item()]} with confidence "
+                    f"{round(score.item(), 3)} at location {box}"
+                )
+                x1, y1, x2, y2 = box
+                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
-            org = [x1, y1]
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            fontScale = 1
-            color = (255, 0, 0)
-            thickness = 2
+                cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
 
-            cv2.putText(img, model.config.id2label[label.item(
-            )], org, font, fontScale, color, thickness)
-            cv2.imwrite("images/detected_person.jpg", img)
-            # cv2.imshow('Webcam', img)
-            theres_somebody_at_the_door(URL, os.getenv('alert_id'))
-            os.remove("images/detected_person.jpg")
-            time.sleep(30)
+                confidence = round(score.item(), 3) * 100
+
+                print('Confidence --->', confidence)
+                print('Class name --->', model.config.id2label[label.item()])
+
+                org = [x1, y1]
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                fontScale = 1
+                color = (255, 0, 0)
+                thickness = 2
+
+                cv2.putText(img, model.config.id2label[label.item(
+                )], org, font, fontScale, color, thickness)
+                cv2.imwrite("images/detected_person.jpg", img)
+                # cv2.imshow('Webcam', img)
+                theres_somebody_at_the_door(URL, os.getenv('alert_id'))
+                os.remove("images/detected_person.jpg")
 
         print('frame')
-        time.sleep(3)
 
         if cv2.waitKey(1) == ord('q'):
             break
